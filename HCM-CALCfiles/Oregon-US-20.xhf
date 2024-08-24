@@ -2,8 +2,8 @@
 <ProjectData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <FacilityLabel>Highway Facility</FacilityLabel>
   <AnalysisModule>HighwayFacility</AnalysisModule>
-  <Mode>HCM2016</Mode>
-  <FileName>O:\NCHRP-08-135-Team_GitHub\Data\OregonUS20\HCMCalc\Oregon-US-20.xhf</FileName>
+  <Mode>HCM2022</Mode>
+  <FileName>Oregon-US-20.xhf</FileName>
   <AnalDate>2022-02-24T20:10:50.5279628-05:00</AnalDate>
   <AnalName />
   <Agency />
@@ -1398,7 +1398,7 @@
         <DFactor>0</DFactor>
         <KFactor>0</KFactor>
         <DriverPopulationFact>0</DriverPopulationFact>
-        <DataFilename>Oregon-US-20-Arterial.xap</DataFilename>
+        <DataFilename>ProjectFiles\Oregon-US-20-Arterial.xap</DataFilename>
       </HighwaySegmentData>
       <HighwaySegmentData xsi:type="SegmentDataTwoLaneHwy" ID="12">
         <Type>TwoLaneHwy</Type>

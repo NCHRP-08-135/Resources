@@ -1,9 +1,14 @@
 # Intersection Influence Area Calculations
 # Version 1.0, 10/17/23
 # By Scott Washburn, Ryan Kenis, Emily Dang; University of Florida
+# -----------------------------------------------------------------
+# Version 1.1, 6/18/25
+# By Scott Washburn
+# Revise or add all function name prefixes to use "IA_" to be able to uniquely identify functions within the main Influence Area methodology calculations file once all methodology calculation files are loaded into memory
+# Several 'editorial' revisions that do not affect results
 
 
-InfAreaSignalUSFcn <- function(AvgSpeed, PctHV, SegNumLanes){
+IA_SignalUSFcn <- function(AvgSpeed, PctHV, SegNumLanes){
   #IML <- 1 #0 = 1 lane, 1 = multiple lanes
   IML <- 0
   if (SegNumLanes > 1){
@@ -13,15 +18,14 @@ InfAreaSignalUSFcn <- function(AvgSpeed, PctHV, SegNumLanes){
   return(IASignalUS)
 }
 
-InfAreaSignalUS8Fcn <- function(AvgSpeed, PctHV){
+IA_SignalUS8Fcn <- function(AvgSpeed, PctHV){
   IML <- 1
   IASignalUS <- -923.89+35.92*AvgSpeed+1.23*PctHV-374.05*IML
   return(IASignalUS)
 }
 
 #Influence Area Signalized Intersection Downstream
-
-InfAreaSignalDSFcn <- function(AvgSpeed, PctHV, SegNumLanes){
+IA_SignalDSFcn <- function(AvgSpeed, PctHV, SegNumLanes){
   #IML <- 1 #0 = 1 lane, 1 = multiple lanes
   IML <- 0
   if (SegNumLanes > 1){
@@ -31,76 +35,67 @@ InfAreaSignalDSFcn <- function(AvgSpeed, PctHV, SegNumLanes){
   return(IASignalDS)
 }
 
-InfAreaSignalDS8Fcn <- function(AvgSpeed, PctHV, SegNumLanes){
+IA_SignalDS8Fcn <- function(AvgSpeed, PctHV, SegNumLanes){
   IML <- 1
   IASignalDS <- -1929.64+60.25*AvgSpeed+7.23*PctHV-154.15*IML
   return(IASignalDS)
 }
 
 #Influence Area Roundabout Intersection Upstream
-
-InfAreaRoundaboutUSFcn <- function(AvgSpeed){
+IA_RoundaboutUSFcn <- function(AvgSpeed){
   AvgSpeedCirc <- 15
   IARoundaboutUS <- 402.15+10.21*AvgSpeed-15.27*AvgSpeedCirc
   return(IARoundaboutUS)
 }
 
 #Influence Area Roundabout Intersection Downstream
-
-InfAreaRoundaboutDSFcn <- function(AvgSpeed){
+IA_RoundaboutDSFcn <- function(AvgSpeed){
   AvgSpeedCirc <- 15
   IARoundaboutDS <- -313.80+32.73*AvgSpeed-27.01*AvgSpeedCirc
   return(IARoundaboutDS)
 }
 
 #Influence Area All Way Stop Control Intersection Upstream
-
-InfAreaAWSCUSFcn <- function(AvgSpeed){
+IA_AWSCUSFcn <- function(AvgSpeed){
   IAAWSCUS <- -1147.62+38.82*AvgSpeed
   return(IAAWSCUS)
 }
 
 #Influence Area All Way Stop Control Intersection Downstream
-
-InfAreaAWSCDSFcn <- function(AvgSpeed){
+IA_AWSCDSFcn <- function(AvgSpeed){
   IAAWSCDS <- -1067.63+44.38*AvgSpeed
   return(IAAWSCDS)
 }
 
 #Difference in Area
-
-DifferenceInAreaFcn <- function(InfluenceAreaUS, InfluenceAreaDS){
+IA_DifferenceInAreaFcn <- function(InfluenceAreaUS, InfluenceAreaDS){
   Area <- abs(InfluenceAreaUS-InfluenceAreaDS)
   return(Area)
 }
 
 #Intersection Adjusted Length
-
-IntAdjustedLengthFcn <- function(IAUpstream, IADownstream){
+IA_IntAdjustedLengthFcn <- function(IAUpstream, IADownstream){
   FeetInMiles <- 5280
   AdjustedLength <- (IAUpstream+IADownstream)/FeetInMiles
   return(AdjustedLength)
 }
 
 #Adjusted Length Calculation
-
-AdjustedLengthFcn <- function(SegLength, SegmentIA, SegGeometricDistance){
+IA_AdjustedLengthFcn <- function(SegLength, SegmentIA, SegGeometricDistance){
   FeetInMiles <- 5280
   AdjustedLength <- ((SegLengthMiles*FeetInMiles)-(SegmentIA-SegGeometricDistance))/FeetInMiles
   return(AdjustedLength)
 }
 
-#Adjusted Length Calculation Inbetween Intersections
-
-AdjustedLengthBetweenFcn <- function(SegLength, SegmentDS, SegDSGeometricDistance, SegmentUS, SegUSGeometricDistance){
+#Adjusted Length Calculation in between Intersections
+IA_AdjustedLengthBetweenFcn <- function(SegLength, SegmentDS, SegDSGeometricDistance, SegmentUS, SegUSGeometricDistance){
   FeetInMiles <- 5280
     AdjustedLength <- (SegLengthMiles*FeetInMiles)-(SegmentDS-SegDSGeometricDistance)-(SegmentUS-SegUSGeometricDistance)
   return(AdjustedLength)
 }
 
 #Model Effective Length UpStream
-
-ModelEffectiveLengthUSFcn <- function(FlowRate){
+IA_ModelEffectiveLengthUSFcn <- function(FlowRate){
   CycleLength <- 90
   EffectiveGreen <- 40
   PctLT <- 0.1
@@ -110,8 +105,7 @@ ModelEffectiveLengthUSFcn <- function(FlowRate){
 }
 
 #Model Effective Length UpStream
-
-ModelEffectiveLengthUSLTFcn <- function(FlowRate){
+IA_ModelEffectiveLengthUSLTFcn <- function(FlowRate){
   CycleLength <- 90
   EffectiveGreen <- 40
   PctLT <- 0.1
@@ -122,8 +116,7 @@ ModelEffectiveLengthUSLTFcn <- function(FlowRate){
 }
 
 #Model Effective Length DownStream
-
-ModelEffectiveLengthDSFcn <- function(FlowRate){
+IA_ModelEffectiveLengthDSFcn <- function(FlowRate){
   CycleLength <- 90
   EffectiveGreen <- 40
   PctLT <- 0.1

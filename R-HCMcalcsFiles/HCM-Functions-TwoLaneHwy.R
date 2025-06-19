@@ -1,6 +1,11 @@
 # HCM Two-Lane Highway Segment Calculations
 # Version 1.0, 10/17/23
 # By Scott Washburn, Ryan Kenis, Emily Dang; University of Florida
+# -----------------------------------------------------------------
+# Version 1.1, 6/18/25
+# By Scott Washburn
+# Revise or add all function name prefixes to use "TL_"  to be able to uniquely identify functions within the main two-lane highway methodology calculations file once all methodology calculation files are loaded into memory
+# Several 'editorial' revisions that do not affect results
 
 
 TwoLaneMainFcn <- function(SegmentType, DemandVolAnalysisDir, DemandVolOpposingDir, PHF, HeavyVehPercent, PostedSpeedLimit, SegLength, AccessPointDensity, LaneWidth, ShoulderWidth, VertAlignmentClass, UpstreamSegResults, IsPassingLaneUpStream, UpStreamPassLaneLengthMi, DownStreamDistMi, EffectiveLengthMi){
@@ -10,99 +15,99 @@ TwoLaneMainFcn <- function(SegmentType, DemandVolAnalysisDir, DemandVolOpposingD
   ReturnEffectiveLength <- 0
 
   TwoLaneLOSDF <- data.frame(FollowerDensityThresholds <- c(0, 2, 4, 8, 12, 18), NumericLOSthresholds <- c(0, 1, 2, 3, 4, 5))
-  Capacity <- CapacityFcn(SegmentType,VertAlignmentClass,HeavyVehPercent)
-  AnalysisFlowRate <- TwoLaneAnalysisFlowRateFcn(DemandVolAnalysisDir, PHF)
-  BFFS <- TwoLaneBFFSFcn(PostedSpeedLimit)
-  AcoeffsBFFS <- Coeffa(VertAlignmentClass)
-  a = aFcn(AcoeffsBFFS, BFFS, SegLength, DemandVolOpposingDir)
-  LaneShoulderAdj <- TwoLaneShoulderAdjFcn(LaneWidth, ShoulderWidth)
-  AccessPointAdj <- TwoLaneAccessDensityFcn(AccessPointDensity)
-  MinSegmentLength <- MinSegmentLengthFcn(VertAlignmentClass, SegmentType)
-  MaxSegmentLength <- MaxSegmentLengthFcn(VertAlignmentClass, SegmentType)
-  FFS <- TwoLaneFFSFcn(BFFS, a, HeavyVehPercent, LaneShoulderAdj, AccessPointAdj)
-  
-  SpeedcCoeffsSpeed <- SpeedcCoeffFcn(SegmentType, VertAlignmentClass)
-  SpeeddCoeffsSpeed <- SpeeddCoeffFcn(SegmentType, VertAlignmentClass)
-  
-  PFbCoeffs <- PFbCoeffFcn(SegmentType, VertAlignmentClass)
-  PFcCoeffs <- PFcCoeffFcn(SegmentType, VertAlignmentClass)
-  PFdCoeffs <- PFCoeffD(SegmentType)
-  PFeCoeffs <- PFCoeffE(SegmentType)
-  
-  if (SegmentType != "PL"){
-    BcoeffsSpeed <- SpeedCoeffbNonPassingLane(VertAlignmentClass, SpeedcCoeffsSpeed, SpeeddCoeffsSpeed, SegLength, FFS, HeavyVehPercent)
-    FcoeffsSpeed <- SpeedfCoeffNonPassingLane(VertAlignmentClass)
-    AvgSpeedSlopeCoeff <- TwoLaneAvgSpeedSlopeCoeffFcn(BcoeffsSpeed, FFS, DemandVolOpposingDir, SegLength, HeavyVehPercent)
-    AvgSpeedPowerCoeff <- TwoLaneAvgSpeedPowerCoeffFcn(FcoeffsSpeed, FFS, SegLength, DemandVolOpposingDir, HeavyVehPercent)
-    AvgSpeed <- TwoLaneAvgSpeedFcn(AnalysisFlowRate, FFS, AvgSpeedSlopeCoeff, AvgSpeedPowerCoeff)
+  Capacity <- TL_CapacityFcn(SegmentType,VertAlignmentClass,HeavyVehPercent)
+  AnalysisFlowRate <- TL_AnalysisFlowRateFcn(DemandVolAnalysisDir, PHF)
+  BFFS <- TL_BFFSFcn(PostedSpeedLimit)
+  AcoeffsBFFS <- TL_CoeffaFcn(VertAlignmentClass)
+  a = TL_aFcn(AcoeffsBFFS, BFFS, SegLength, DemandVolOpposingDir)
+  LaneShoulderAdj <- TL_ShoulderAdjFcn(LaneWidth, ShoulderWidth)
+  AccessPointAdj <- TL_AccessDensityFcn(AccessPointDensity)
+  MinSegmentLength <- TL_MinSegmentLengthFcn(VertAlignmentClass, SegmentType)
+  MaxSegmentLength <- TL_MaxSegmentLengthFcn(VertAlignmentClass, SegmentType)
+  FFS <- TL_FFSFcn(BFFS, a, HeavyVehPercent, LaneShoulderAdj, AccessPointAdj)
 
-    PercentFollowerCapacity <- TwoLanePFCapacityFcn(SegmentType, PFbCoeffs, SegLength,FFS, HeavyVehPercent,DemandVolOpposingDir)
-    PercentFollower25Capacity <- TwoLanePF25CapacityFcn(SegmentType, PFcCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOpposingDir)
-    PercentFollowerSlopeCoeff <- TwoLanePFSlopeCoeffFcn(PFdCoeffs, PercentFollower25Capacity, Capacity, PercentFollowerCapacity)
-    PercentFollowerPowerCoeff <- TwoLanePFPowerCoeffFcn(PFeCoeffs, PercentFollower25Capacity, Capacity, PercentFollowerCapacity)
-    PercentFollowers <- TwoLanePercentFollowersFcn(PercentFollowerSlopeCoeff, AnalysisFlowRate, PercentFollowerPowerCoeff)
-    FollowerDensity <- TwoLaneFollowerDensityFcn(PercentFollowers, AnalysisFlowRate, AvgSpeed)
+  SpeedcCoeffsSpeed <- TL_SpeedcCoeffFcn(SegmentType, VertAlignmentClass)
+  SpeeddCoeffsSpeed <- TL_SpeeddCoeffFcn(SegmentType, VertAlignmentClass)
+
+  PFbCoeffs <- TL_PFbCoeffFcn(SegmentType, VertAlignmentClass)
+  PFcCoeffs <- TL_PFcCoeffFcn(SegmentType, VertAlignmentClass)
+  PFdCoeffs <- TL_PFCoeffDFcn(SegmentType)
+  PFeCoeffs <- TL_PFCoeffEFcn(SegmentType)
+
+  if (SegmentType != "PL"){
+    BcoeffsSpeed <- TL_SpeedCoeffbNonPassingLaneFcn(VertAlignmentClass, SpeedcCoeffsSpeed, SpeeddCoeffsSpeed, SegLength, FFS, HeavyVehPercent)
+    FcoeffsSpeed <- TL_SpeedfCoeffNonPassingLaneFcn(VertAlignmentClass)
+    AvgSpeedSlopeCoeff <- TL_AvgSpeedSlopeCoeffFcn(BcoeffsSpeed, FFS, DemandVolOpposingDir, SegLength, HeavyVehPercent)
+    AvgSpeedPowerCoeff <- TL_AvgSpeedPowerCoeffFcn(FcoeffsSpeed, FFS, SegLength, DemandVolOpposingDir, HeavyVehPercent)
+    AvgSpeed <- TL_AvgSpeedFcn(AnalysisFlowRate, FFS, AvgSpeedSlopeCoeff, AvgSpeedPowerCoeff)
+
+    PercentFollowerCapacity <- TL_PFCapacityFcn(SegmentType, PFbCoeffs, SegLength,FFS, HeavyVehPercent,DemandVolOpposingDir)
+    PercentFollower25Capacity <- TL_PF25CapacityFcn(SegmentType, PFcCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOpposingDir)
+    PercentFollowerSlopeCoeff <- TL_PFSlopeCoeffFcn(PFdCoeffs, PercentFollower25Capacity, Capacity, PercentFollowerCapacity)
+    PercentFollowerPowerCoeff <- TL_PFPowerCoeffFcn(PFeCoeffs, PercentFollower25Capacity, Capacity, PercentFollowerCapacity)
+    PercentFollowers <- TL_PercentFollowersFcn(PercentFollowerSlopeCoeff, AnalysisFlowRate, PercentFollowerPowerCoeff)
+    FollowerDensity <- TL_FollowerDensityFcn(PercentFollowers, AnalysisFlowRate, AvgSpeed)
     if (IsPassingLaneUpStream==TRUE){
       if (UpStreamPassLaneLengthMi+DownStreamDistMi<EffectiveLengthMi){
-        AdjustedFollowerDensity <- AdjustedFollowerDensityFcn(UpStreamPassLaneLengthMi, UpstreamSegResults[5], UpstreamSegResults[3], AnalysisFlowRate, PercentFollowers, AvgSpeed, DownStreamDistMi)
+        AdjustedFollowerDensity <- TL_AdjustedFollowerDensityFcn(UpStreamPassLaneLengthMi, UpstreamSegResults[5], UpstreamSegResults[3], AnalysisFlowRate, PercentFollowers, AvgSpeed, DownStreamDistMi)
         FollowerDensity <- AdjustedFollowerDensity
       }
     }
     ReturnAvgSpeed <- AvgSpeed
     ReturnPctFollowers <- PercentFollowers
     ReturnFollowerDensity <- FollowerDensity
-    LOSvalue <- TwoLaneLOSfcn(FollowerDensity, PostedSpeedLimit)
+    LOSvalue <- TL_LOSfcn(FollowerDensity, PostedSpeedLimit)
     LOSNumber <- approx(TwoLaneLOSDF$FollowerDensityThresholds, TwoLaneLOSDF$NumericLOSthresholds, xout = ReturnFollowerDensity)
   }
   #Passing Lane Functions
   else if (SegmentType == "PL"){
-    NumHV <- NumHVFcn(AnalysisFlowRate, HeavyVehPercent)
-    PropFlowRateFL <- PropFlowRateFLFcn(AnalysisFlowRate, NumHV)
-    FlowRateFL <- FlowRateFLFcn(AnalysisFlowRate, PropFlowRateFL)
-    FlowRateSL <- FlowRateSLFcn(AnalysisFlowRate, PropFlowRateFL)
-    HeavyVehPercentFL <- HeavyVehPercentFLFcn(HeavyVehPercent)
-    NumHVSL <- NumHVSLFcn(NumHV, FlowRateFL, HeavyVehPercentFL)
-    HeavyVehPercentSL <- HeavyVehPercentSLFcn(NumHVSL, FlowRateSL)
-    AvgSpeedDiffAdj <- AvgSpeedDiffAdjFcn(AnalysisFlowRate, HeavyVehPercent) #SW added
-    SpeedbcoeffsSpeed <- SpeedbCoeffFcn(SegmentType, VertAlignmentClass, SpeedcCoeffsSpeed, SpeeddCoeffsSpeed, SegLength, FFS, HeavyVehPercent) #SW added
-    SpeedfcoeffsSpeed <- SpeedfCoeffFcn(SegmentType, VertAlignmentClass)
-    InitialFLAvgSpeedPowerCoeff <- TwoLaneAvgSpeedPowerCoeffFcn(SpeedfcoeffsSpeed, FFS, SegLength, DemandVolOpposingDir, HeavyVehPercentFL)
-    InitialFLAvgSpeedSlopeCoeff <- TwoLaneAvgSpeedSlopeCoeffFcn(SpeedbcoeffsSpeed, FFS, DemandVolOpposingDir, SegLength, HeavyVehPercentFL)
-    InitialAvgSpeedFL <- TwoLaneAvgSpeedFcn(FlowRateFL, FFS, InitialFLAvgSpeedSlopeCoeff, InitialFLAvgSpeedPowerCoeff)
-    AvgSpeedPLMidFL <- AvgSpeedPLMidFLFcn(InitialAvgSpeedFL, AvgSpeedDiffAdj)
-    InitialSLAvgSpeedPowerCoeff <- TwoLaneAvgSpeedPowerCoeffFcn(SpeedfcoeffsSpeed, FFS, SegLength, DemandVolOpposingDir, HeavyVehPercentSL)
-    InitialSLAvgSpeedSlopeCoeff <- TwoLaneAvgSpeedSlopeCoeffFcn(SpeedbcoeffsSpeed, FFS, DemandVolOpposingDir, SegLength, HeavyVehPercentSL)
-    InitialAvgSpeedSL <- TwoLaneAvgSpeedFcn(FlowRateSL, FFS, InitialSLAvgSpeedSlopeCoeff, InitialSLAvgSpeedPowerCoeff)
-    AvgSpeedPLMidSL <- AvgSpeedPLMidSLFcn(InitialAvgSpeedSL, AvgSpeedDiffAdj)
-    AvgSpeedPLMid <- AvgSpeedPLMidFcn(FlowRateFL, AvgSpeedPLMidFL, FlowRateSL, AvgSpeedPLMidSL)
-    PercentFollowerPLMidFLCapacity <- PFPLMidCapacityFcn(PFbCoeffs, SegLength, FFS, HeavyVehPercentFL)
-    PercentFollowerPLMidFL25Capacity <- PFPLMid25CapacityFcn(PFcCoeffs, SegLength, FFS, HeavyVehPercentFL)
-    PercentFollowerPLMidFLPowerCoeff <- TwoLanePFPowerCoeffFcn(PFeCoeffs, PercentFollowerPLMidFL25Capacity, Capacity, PercentFollowerPLMidFLCapacity)
-    PercentFollowerPLMidFLSlopeCoeff <- TwoLanePFSlopeCoeffFcn(PFdCoeffs, PercentFollowerPLMidFL25Capacity, Capacity, PercentFollowerPLMidFLCapacity)
-    PercentFollowerPLMidFL <- TwoLanePercentFollowersFcn(PercentFollowerPLMidFLSlopeCoeff, FlowRateFL, PercentFollowerPLMidFLPowerCoeff)
-    PercentFollowerPLMidSLCapacity <- PFPLMidCapacityFcn(PFbCoeffs, SegLength, FFS, HeavyVehPercentSL)
-    PercentFollowerPLMidSL25Capacity <- PFPLMid25CapacityFcn(PFcCoeffs, SegLength, FFS, HeavyVehPercentSL)
-    PercentFollowerPLMidSLPowerCoeff <- TwoLanePFPowerCoeffFcn(PFeCoeffs, PercentFollowerPLMidSL25Capacity, Capacity, PercentFollowerPLMidSLCapacity)
-    PercentFollowerPLMidSLSlopeCoeff <- TwoLanePFSlopeCoeffFcn(PFdCoeffs, PercentFollowerPLMidSL25Capacity, Capacity, PercentFollowerPLMidSLCapacity)
-    PercentFollowerPLMidSL <- TwoLanePercentFollowersFcn(PercentFollowerPLMidSLSlopeCoeff, FlowRateSL, PercentFollowerPLMidSLPowerCoeff)
-    AvgPercentFollowersPL <- AvgPercentFollowersPLFcn(FlowRateFL, PercentFollowerPLMidFL, FlowRateSL, PercentFollowerPLMidSL)
-    FollowerDensityPLMid <- FollowerDensityPLMidFcn(SegmentType,PercentFollowerPLMidFL,FlowRateFL,AvgSpeedPLMidFL, PercentFollowerPLMidSL, FlowRateSL, AvgSpeedPLMidSL)
-    ReturnEffectiveLength <- PassingLaneEffectiveLengthFcn(UpstreamSegResults[5], UpstreamSegResults[2], UpstreamSegResults[3], UpstreamSegResults[4], SegLength) 
+    NumHV <- TL_NumHVFcn(AnalysisFlowRate, HeavyVehPercent)
+    PropFlowRateFL <- TL_PropFlowRateFLFcn(AnalysisFlowRate, NumHV)
+    FlowRateFL <- TL_FlowRateFLFcn(AnalysisFlowRate, PropFlowRateFL)
+    FlowRateSL <- TL_FlowRateSLFcn(AnalysisFlowRate, PropFlowRateFL)
+    HeavyVehPercentFL <- TL_HeavyVehPercentFLFcn(HeavyVehPercent)
+    NumHVSL <- TL_NumHVSLFcn(NumHV, FlowRateFL, HeavyVehPercentFL)
+    HeavyVehPercentSL <- TL_HeavyVehPercentSLFcn(NumHVSL, FlowRateSL)
+    AvgSpeedDiffAdj <- TL_AvgSpeedDiffAdjFcn(AnalysisFlowRate, HeavyVehPercent) #SW added
+    SpeedbcoeffsSpeed <- TL_SpeedbCoeffFcn(SegmentType, VertAlignmentClass, SpeedcCoeffsSpeed, SpeeddCoeffsSpeed, SegLength, FFS, HeavyVehPercent) #SW added
+    SpeedfcoeffsSpeed <- TL_SpeedfCoeffFcn(SegmentType, VertAlignmentClass)
+    InitialFLAvgSpeedPowerCoeff <- TL_AvgSpeedPowerCoeffFcn(SpeedfcoeffsSpeed, FFS, SegLength, DemandVolOpposingDir, HeavyVehPercentFL)
+    InitialFLAvgSpeedSlopeCoeff <- TL_AvgSpeedSlopeCoeffFcn(SpeedbcoeffsSpeed, FFS, DemandVolOpposingDir, SegLength, HeavyVehPercentFL)
+    InitialAvgSpeedFL <- TL_AvgSpeedFcn(FlowRateFL, FFS, InitialFLAvgSpeedSlopeCoeff, InitialFLAvgSpeedPowerCoeff)
+    AvgSpeedPLMidFL <- TL_AvgSpeedPLMidFLFcn(InitialAvgSpeedFL, AvgSpeedDiffAdj)
+    InitialSLAvgSpeedPowerCoeff <- TL_AvgSpeedPowerCoeffFcn(SpeedfcoeffsSpeed, FFS, SegLength, DemandVolOpposingDir, HeavyVehPercentSL)
+    InitialSLAvgSpeedSlopeCoeff <- TL_AvgSpeedSlopeCoeffFcn(SpeedbcoeffsSpeed, FFS, DemandVolOpposingDir, SegLength, HeavyVehPercentSL)
+    InitialAvgSpeedSL <- TL_AvgSpeedFcn(FlowRateSL, FFS, InitialSLAvgSpeedSlopeCoeff, InitialSLAvgSpeedPowerCoeff)
+    AvgSpeedPLMidSL <- TL_AvgSpeedPLMidSLFcn(InitialAvgSpeedSL, AvgSpeedDiffAdj)
+    AvgSpeedPLMid <- TL_AvgSpeedPLMidFcn(FlowRateFL, AvgSpeedPLMidFL, FlowRateSL, AvgSpeedPLMidSL)
+    PercentFollowerPLMidFLCapacity <- TL_PFPLMidCapacityFcn(PFbCoeffs, SegLength, FFS, HeavyVehPercentFL)
+    PercentFollowerPLMidFL25Capacity <- TL_PFPLMid25CapacityFcn(PFcCoeffs, SegLength, FFS, HeavyVehPercentFL)
+    PercentFollowerPLMidFLPowerCoeff <- TL_PFPowerCoeffFcn(PFeCoeffs, PercentFollowerPLMidFL25Capacity, Capacity, PercentFollowerPLMidFLCapacity)
+    PercentFollowerPLMidFLSlopeCoeff <- TL_PFSlopeCoeffFcn(PFdCoeffs, PercentFollowerPLMidFL25Capacity, Capacity, PercentFollowerPLMidFLCapacity)
+    PercentFollowerPLMidFL <- TL_PercentFollowersFcn(PercentFollowerPLMidFLSlopeCoeff, FlowRateFL, PercentFollowerPLMidFLPowerCoeff)
+    PercentFollowerPLMidSLCapacity <- TL_PFPLMidCapacityFcn(PFbCoeffs, SegLength, FFS, HeavyVehPercentSL)
+    PercentFollowerPLMidSL25Capacity <- TL_PFPLMid25CapacityFcn(PFcCoeffs, SegLength, FFS, HeavyVehPercentSL)
+    PercentFollowerPLMidSLPowerCoeff <- TL_PFPowerCoeffFcn(PFeCoeffs, PercentFollowerPLMidSL25Capacity, Capacity, PercentFollowerPLMidSLCapacity)
+    PercentFollowerPLMidSLSlopeCoeff <- TL_PFSlopeCoeffFcn(PFdCoeffs, PercentFollowerPLMidSL25Capacity, Capacity, PercentFollowerPLMidSLCapacity)
+    PercentFollowerPLMidSL <- TL_PercentFollowersFcn(PercentFollowerPLMidSLSlopeCoeff, FlowRateSL, PercentFollowerPLMidSLPowerCoeff)
+    AvgPercentFollowersPL <- TL_AvgPercentFollowersPLFcn(FlowRateFL, PercentFollowerPLMidFL, FlowRateSL, PercentFollowerPLMidSL)
+    FollowerDensityPLMid <- TL_FollowerDensityPLMidFcn(SegmentType,PercentFollowerPLMidFL,FlowRateFL,AvgSpeedPLMidFL, PercentFollowerPLMidSL, FlowRateSL, AvgSpeedPLMidSL)
+    ReturnEffectiveLength <- TL_PassingLaneEffectiveLengthFcn(UpstreamSegResults[5], UpstreamSegResults[2], UpstreamSegResults[3], UpstreamSegResults[4], SegLength)
     ReturnAvgSpeed <- AvgSpeedPLMid
     ReturnPctFollowers <- AvgPercentFollowersPL
     ReturnFollowerDensity <- FollowerDensityPLMid
-    LOSvalue <- TwoLaneLOSfcn(FollowerDensityPLMid, PostedSpeedLimit)
+    LOSvalue <- TL_LOSfcn(FollowerDensityPLMid, PostedSpeedLimit)
     LOSNumber <- approx(TwoLaneLOSDF$FollowerDensityThresholds, TwoLaneLOSDF$NumericLOSthresholds, xout = ReturnFollowerDensity)
     AvgSpeedSlopeCoeff <- 0
     AvgSpeedPowerCoeff <- 0
     }
-  
-  TwoLaneOutputDisplayFcnCommon(SegmentType, AnalysisFlowRate, BFFS, a, LaneShoulderAdj, AccessPointAdj, MinSegmentLength, MaxSegmentLength, FFS)
-  
+
+  TL_OutputDisplayFcnCommon(SegmentType, AnalysisFlowRate, BFFS, a, LaneShoulderAdj, AccessPointAdj, MinSegmentLength, MaxSegmentLength, FFS)
+
   if (SegmentType != "PL"){
-    TwoLaneOutputDisplayFcnNonPassingLane(AvgSpeedSlopeCoeff, AvgSpeedPowerCoeff, ReturnAvgSpeed, PercentFollowerCapacity, PercentFollower25Capacity, PercentFollowerSlopeCoeff, PercentFollowerPowerCoeff, ReturnPctFollowers, ReturnFollowerDensity, LOSvalue, LOSNumber)
+    TL_OutputDisplayFcnNonPassingLane(AvgSpeedSlopeCoeff, AvgSpeedPowerCoeff, ReturnAvgSpeed, PercentFollowerCapacity, PercentFollower25Capacity, PercentFollowerSlopeCoeff, PercentFollowerPowerCoeff, ReturnPctFollowers, ReturnFollowerDensity, LOSvalue, LOSNumber)
   } else {
-    TwoLaneOutputDisplayFcnPassingLane(NumHV, PropFlowRateFL, FlowRateFL, FlowRateSL, HeavyVehPercentFL, NumHVSL, HeavyVehPercentSL, AvgSpeedDiffAdj, InitialAvgSpeedFL, AvgSpeedPLMidFL, InitialAvgSpeedSL, AvgSpeedPLMidSL, AvgSpeedPLMid, PercentFollowerPLMidFL, PercentFollowerPLMidSL, AvgPercentFollowersPL, FollowerDensityPLMid,ReturnFollowerDensity,LOSvalue, LOSNumber, ReturnEffectiveLength)
+    TL_OutputDisplayFcnPassingLane(NumHV, PropFlowRateFL, FlowRateFL, FlowRateSL, HeavyVehPercentFL, NumHVSL, HeavyVehPercentSL, AvgSpeedDiffAdj, InitialAvgSpeedFL, AvgSpeedPLMidFL, InitialAvgSpeedSL, AvgSpeedPLMidSL, AvgSpeedPLMid, PercentFollowerPLMidFL, PercentFollowerPLMidSL, AvgPercentFollowersPL, FollowerDensityPLMid,ReturnFollowerDensity,LOSvalue, LOSNumber, ReturnEffectiveLength)
   }
   #ReturnFollowerDensity <- AdjustedFollowerDensity
   Results <- c(FFS, ReturnAvgSpeed, ReturnPctFollowers, ReturnFollowerDensity, AnalysisFlowRate, LOSNumber[[2]], ReturnEffectiveLength)
@@ -111,7 +116,7 @@ TwoLaneMainFcn <- function(SegmentType, DemandVolAnalysisDir, DemandVolOpposingD
 
 
 #Function to set passing lane capacity (HCM Exhibit 15-5)
-CapacityFcn <- function(SegmentType,VertAlignClass,HeavyVehPercent){
+TL_CapacityFcn <- function(SegmentType,VertAlignClass,HeavyVehPercent){
   #cat("VertClass =", VertAlignClass, "\n")
   if (SegmentType != "PL"){
     return(1700)
@@ -164,72 +169,71 @@ CapacityFcn <- function(SegmentType,VertAlignClass,HeavyVehPercent){
   return(PLCapacity)
 }
 
-
 #HCM Eq. 15-1
-TwoLaneAnalysisFlowRateFcn <- function(DemandVolume, PHF){
+TL_AnalysisFlowRateFcn <- function(DemandVolume, PHF){
   AnalysisFlowRate <- DemandVolume/PHF
   return(AnalysisFlowRate)
 }
 
 #HCM Eq. 15-2
-TwoLaneBFFSFcn <- function(PostedSpeedLimit){
+TL_BFFSFcn <- function(PostedSpeedLimit){
   BFFS <- 1.14*PostedSpeedLimit
   return(BFFS)
 }
 
 #HCM Eq. 15-4
-aFcn <- function(Acoeffs, BFFS, SegLength, v0){
+TL_aFcn <- function(Acoeffs, BFFS, SegLength, v0){
   a = max(0.0333, Acoeffs[1] + Acoeffs[2]*BFFS + Acoeffs[3]*SegLength + (max(0, Acoeffs[4] + Acoeffs[5]*BFFS + Acoeffs[6]*SegLength))*(v0/1000))
   return(a)
 }
 
 
 #HCM Eq. 15-5
-TwoLaneShoulderAdjFcn <- function(LaneWidth, ShoulderWidth){
+TL_ShoulderAdjFcn <- function(LaneWidth, ShoulderWidth){
   LaneShoulderAdj <- 0.6 * (12 - LaneWidth) + 0.7 * (6 - ShoulderWidth)
   return(LaneShoulderAdj)
 }
-  
+
 #HCM Eq. 15-6
-TwoLaneAccessDensityFcn <- function(AccessPointDensity){
+TL_AccessDensityFcn <- function(AccessPointDensity){
   AccessPointAdj <- min((AccessPointDensity/4),10)
   return(AccessPointAdj)
 }
 
 #HCM Eq. 15-3
-TwoLaneFFSFcn <- function(BFFS, a, HeavyVehPercent, LaneShoulderAdj, AccessPointAdj){
+TL_FFSFcn <- function(BFFS, a, HeavyVehPercent, LaneShoulderAdj, AccessPointAdj){
   FFS <- BFFS - a*(HeavyVehPercent) - LaneShoulderAdj - AccessPointAdj
   return(FFS)
 }
 
 #HCM Eq. 15-9 (Avg Speed b3 equation)
-b3Fcn <- function(c0, c1, SegLength, c2, FFS, c3){
+TL_b3Fcn <- function(c0, c1, SegLength, c2, FFS, c3){
   b3 <- (c0 + c1 * sqrt(SegLength) + c2 * FFS + c3 * (FFS*sqrt(SegLength)))
   return(b3)
 }
 
 #HCM Eq. 15-10 (Avg Speed b4 equation)
-b4Fcn <- function(d0, d1, HeavyVehPercent, d2, FFS, d3){
+TL_b4Fcn <- function(d0, d1, HeavyVehPercent, d2, FFS, d3){
   b4 <- (d0 + d1 * sqrt(HeavyVehPercent) + d2 * FFS + d3 * (FFS*sqrt(HeavyVehPercent)))
   return(b4)
 }
 
 
 #HCM Eq. 15-8 (Avg Speed m Coefficient)
-TwoLaneAvgSpeedSlopeCoeffFcn <- function(Bcoeffs, FFS, v0, SegLength, HeavyVehPercent){
+TL_AvgSpeedSlopeCoeffFcn <- function(Bcoeffs, FFS, v0, SegLength, HeavyVehPercent){
   AvgSpeedSlopeCoeff <- max(Bcoeffs[6], Bcoeffs[1] + Bcoeffs[2] * FFS + Bcoeffs[3] * sqrt(v0/1000) + max(0,Bcoeffs[4]) * sqrt(SegLength) + max(0,Bcoeffs[5]) * sqrt(HeavyVehPercent))
   return(AvgSpeedSlopeCoeff)
 }
 
 
 #HCM Eq. 15-11 (Avg Speed p Coefficient)
-TwoLaneAvgSpeedPowerCoeffFcn <- function(Fcoeffs, FFS, SegLength, v0, HeavyVehPercent){
+TL_AvgSpeedPowerCoeffFcn <- function(Fcoeffs, FFS, SegLength, v0, HeavyVehPercent){
   AvgSpeedPowerCoeff <- max(Fcoeffs[9], Fcoeffs[1] + Fcoeffs[2]*FFS + Fcoeffs[3]*SegLength + Fcoeffs[4]*(v0/1000) + Fcoeffs[5]*sqrt(v0/1000) + Fcoeffs[6]*HeavyVehPercent + Fcoeffs[7]*sqrt(HeavyVehPercent) + Fcoeffs[8]*(SegLength*HeavyVehPercent))
   return(AvgSpeedPowerCoeff)
 }
 
 #HCM Eq. 15-7 (Avg Speed)
-TwoLaneAvgSpeedFcn <- function(AnalysisFlowRate, FFS, AvgSpeedSlopeCoeff, AvgSpeedPowerCoeff){
+TL_AvgSpeedFcn <- function(AnalysisFlowRate, FFS, AvgSpeedSlopeCoeff, AvgSpeedPowerCoeff){
   if (AnalysisFlowRate < 100){
     AvgSpeed <- FFS
   }
@@ -241,22 +245,22 @@ TwoLaneAvgSpeedFcn <- function(AnalysisFlowRate, FFS, AvgSpeedSlopeCoeff, AvgSpe
 
 #HCM Eq. 15-18 (% Followers at Capacity)
 
-TwoLanePFCapacityFcn <- function(SegmentType, PFbCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOppDir){
+TL_PFCapacityFcn <- function(SegmentType, PFbCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOppDir){
   if (SegmentType == "PZ" | SegmentType == "NPZ"){
     PctFollowCapacity <- PFbCoeffs[1] + (PFbCoeffs[2]*SegLength) + (PFbCoeffs[3]*sqrt(SegLength)) + (PFbCoeffs[4]*FFS) + (PFbCoeffs[5]*sqrt(FFS)) + (PFbCoeffs[6]*HeavyVehPercent) + (PFbCoeffs[7]*(FFS*(DemandVolOppDir/1000))) + (PFbCoeffs[8]*sqrt(DemandVolOppDir/1000))
-    #PercentFollowerCapacity <- TwoLanePFNonPassingCapacityFcn(PFbCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOpposingDir)
+    #PercentFollowerCapacity <- TL_PFNonPassingCapacityFcn(PFbCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOpposingDir)
   }
   else if (SegmentType == "PL"){
     PctFollowCapacity <- PFbCoeffs[1] + (PFbCoeffs[2]*SegLength) + (PFbCoeffs[3]*sqrt(SegLength)) + (PFbCoeffs[4]*FFS) + (PFbCoeffs[5]*sqrt(FFS)) + (PFbCoeffs[6]*HeavyVehPercent) + (PFbCoeffs[7]*sqrt(HeavyVehPercent)) + (PFbCoeffs[8]*(FFS*HeavyVehPercent))
-    #PercentFollowerCapacity <- TwoLanePFPassingLaneCapacityFcn(PFbCoeffs, SegLength, FFS, HeavyVehPercent)
+    #PercentFollowerCapacity <- TL_PFPassingLaneCapacityFcn(PFbCoeffs, SegLength, FFS, HeavyVehPercent)
   }
     return(PctFollowCapacity)
 }
 
 #HCM Eq. 15-20 (% Followers at 25% Capacity)
-#TwoLanePF25CapacityFcn <- function(PFcCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOppDir){}
+#TL_PF25CapacityFcn <- function(PFcCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOppDir){}
 
-TwoLanePF25CapacityFcn <- function(SegmentType, PFcCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOppDir){
+TL_PF25CapacityFcn <- function(SegmentType, PFcCoeffs, SegLength, FFS, HeavyVehPercent, DemandVolOppDir){
   if (SegmentType == "PZ" | SegmentType == "NPZ"){
     PercentFollower25Capacity <- PFcCoeffs[1] + (PFcCoeffs[2]*SegLength) + (PFcCoeffs[3]*sqrt(SegLength)) + (PFcCoeffs[4]*FFS) + (PFcCoeffs[5]*sqrt(FFS)) + (PFcCoeffs[6]*HeavyVehPercent) + (PFcCoeffs[7]*(FFS*(DemandVolOppDir/1000))) + (PFcCoeffs[8]*sqrt(DemandVolOppDir/1000))
   }
@@ -268,35 +272,35 @@ TwoLanePF25CapacityFcn <- function(SegmentType, PFcCoeffs, SegLength, FFS, Heavy
 
 
 #HCM Eq. 15-22 (% Follower m Coefficient)
-TwoLanePFSlopeCoeffFcn <- function(PFdCoeffs, PercentFollower25Capacity, Capacity, PercentFollowerCapacity){
+TL_PFSlopeCoeffFcn <- function(PFdCoeffs, PercentFollower25Capacity, Capacity, PercentFollowerCapacity){
   PercentFollowerSlopeCoeff <- (PFdCoeffs[1]*((0-log(1-(PercentFollower25Capacity/100)))/(0.25*(Capacity/1000)))) + (PFdCoeffs[2]*((0 - log(1-(PercentFollowerCapacity/100)))/(Capacity/1000)))
   return(PercentFollowerSlopeCoeff)
 }
 
 
 #HCM Eq. 15-23 (% Follower p Coefficient)
-TwoLanePFPowerCoeffFcn <- function(PFeCoeffs, PercentFollower25Capacity, Capacity, PercentFollowerCapacity){
+TL_PFPowerCoeffFcn <- function(PFeCoeffs, PercentFollower25Capacity, Capacity, PercentFollowerCapacity){
   PercentFollowerPowerCoeff <- PFeCoeffs[1] + (PFeCoeffs[2]*((0-log(1-(PercentFollower25Capacity/100)))/(0.25*(Capacity/1000)))) + (PFeCoeffs[3]*((0-log(1-(PercentFollowerCapacity/100)))/(Capacity/1000))) + (PFeCoeffs[4]*sqrt((0-log(1-(PercentFollower25Capacity/100)))/(0.25*(Capacity/1000)))) + (PFeCoeffs[5]*sqrt((0-log(1-(PercentFollowerCapacity/100)))/(Capacity/1000)))
   return(PercentFollowerPowerCoeff)
 }
 
 
 #HCM Eq. 15-17 (% Followers)
-TwoLanePercentFollowersFcn <- function(PercentFollowerSlopeCoeff, AnalysisFlowRate, PercentFollowerPowerCoeff){
+TL_PercentFollowersFcn <- function(PercentFollowerSlopeCoeff, AnalysisFlowRate, PercentFollowerPowerCoeff){
   PercentFollowers <- 100*(1-exp(PercentFollowerSlopeCoeff*(AnalysisFlowRate/1000)^PercentFollowerPowerCoeff))
   return(PercentFollowers)
 }
 
 
 #HCM Equation 15-35 (Follower Density)
-TwoLaneFollowerDensityFcn <- function(PercentFollowers, AnalysisFlowRate, AvgSpeed){
+TL_FollowerDensityFcn <- function(PercentFollowers, AnalysisFlowRate, AvgSpeed){
   FollowDensity <- (PercentFollowers/100) * (AnalysisFlowRate/AvgSpeed)
   return(FollowDensity)
 }
 
 
-#Exhibit 12-6 
-TwoLaneLOSfcn <- function(FollowerDensity, PostedSpeedLimit){
+#Exhibit 12-6
+TL_LOSfcn <- function(FollowerDensity, PostedSpeedLimit){
   if (PostedSpeedLimit >= 50){
     if (FollowerDensity <= 2.0) {
       LOSvalue <- "A"
@@ -342,7 +346,7 @@ TwoLaneLOSfcn <- function(FollowerDensity, PostedSpeedLimit){
 
 
 #For 'a' coefficients, used for determining FFS
-Coeffa <- function(VertAlignClass){
+TL_CoeffaFcn <- function(VertAlignClass){
   Acoeffs <- vector()
   switch (VertAlignClass,
           "1"={Acoeffs <- c(0.00000,0.00000,0.00000,0.00000,0.00000,0.00000)
@@ -360,18 +364,18 @@ Coeffa <- function(VertAlignClass){
 }
 
 #Need to first get 'c' and 'd' coefficients, since they may be needed in determination of 'b' coefficients
-SpeedcCoeffFcn <- function(SegmentType, VertAlignmentClass){
+TL_SpeedcCoeffFcn <- function(SegmentType, VertAlignmentClass){
   Ccoeffs <- vector()
   if (SegmentType == "NPZ" | SegmentType == "PZ"){
-    Ccoeffs <- SpeedCoeffcNonPassingLane(VertAlignmentClass)
+    Ccoeffs <- TL_SpeedCoeffcNonPassingLaneFcn(VertAlignmentClass)
   }
   else if (SegmentType == "PL"){
-    Ccoeffs <- SpeedCoeffcPassingLane(VertAlignmentClass)
+    Ccoeffs <- TL_SpeedCoeffcPassingLaneFcn(VertAlignmentClass)
   }
   return (Ccoeffs)
 }
 
-SpeedCoeffcNonPassingLane <- function(VertAlignmentClass){
+TL_SpeedCoeffcNonPassingLaneFcn <- function(VertAlignmentClass){
   Ccoeffs <- vector()
   switch (VertAlignmentClass,
     "1"={Ccoeffs <- c(0.1029,0.0000,0.0000,0.0000)
@@ -388,7 +392,7 @@ SpeedCoeffcNonPassingLane <- function(VertAlignmentClass){
   return (Ccoeffs)
 }
 
-SpeedCoeffcPassingLane <- function(VertAlignmentClass){
+TL_SpeedCoeffcPassingLaneFcn <- function(VertAlignmentClass){
   Ccoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={Ccoeffs <- c(0.0000,0.2667,0.0000,0.0000)
@@ -406,18 +410,18 @@ SpeedCoeffcPassingLane <- function(VertAlignmentClass){
 }
 
 
-SpeeddCoeffFcn <- function(SegmentType, VertAlignmentClass){
+TL_SpeeddCoeffFcn <- function(SegmentType, VertAlignmentClass){
   Dcoeffs <- vector()
   if (SegmentType == "NPZ" | SegmentType == "PZ"){
-    Dcoeffs <- SpeedCoeffdNonPassingLane(VertAlignmentClass)
+    Dcoeffs <- TL_SpeedCoeffdNonPassingLaneFcn(VertAlignmentClass)
   }
   else if (SegmentType == "PL"){
-    Dcoeffs <- SpeedCoeffdPassingLane(VertAlignmentClass)
+    Dcoeffs <- TL_SpeedCoeffdPassingLaneFcn(VertAlignmentClass)
   }
   return (Dcoeffs)
 }
 
-SpeedCoeffdNonPassingLane <- function(VertAlignmentClass){
+TL_SpeedCoeffdNonPassingLaneFcn <- function(VertAlignmentClass){
   Dcoeffs <- vector()
   switch (VertAlignmentClass,
     "1"={Dcoeffs <- c(0.0000,0.0000,0.0000,0.0000)
@@ -434,7 +438,7 @@ SpeedCoeffdNonPassingLane <- function(VertAlignmentClass){
   return (Dcoeffs)
 }
 
-SpeedCoeffdPassingLane <- function(VertAlignmentClass){
+TL_SpeedCoeffdPassingLaneFcn <- function(VertAlignmentClass){
   Dcoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={Dcoeffs <- c(0.0000,0.1252,0.0000,0.0000)
@@ -451,88 +455,88 @@ SpeedCoeffdPassingLane <- function(VertAlignmentClass){
   return (Dcoeffs)
 }
 
-SpeedbCoeffFcn <- function(SegmentType, VertAlignmentClass, CcoeffsSpeed, DcoeffsSpeed, SegLength, FFS, HeavyVehPercent){
+TL_SpeedbCoeffFcn <- function(SegmentType, VertAlignmentClass, CcoeffsSpeed, DcoeffsSpeed, SegLength, FFS, HeavyVehPercent){
   Bcoeffs <- vector()
   if (SegmentType == "NPZ" | SegmentType == "PZ"){
-    Bcoeffs <- SpeedCoeffbNonPassingLane(VertAlignmentClass, CcoeffsSpeed, DcoeffsSpeed, SegLength, FFS, HeavyVehPercent)
+    Bcoeffs <- TL_SpeedCoeffbNonPassingLaneFcn(VertAlignmentClass, CcoeffsSpeed, DcoeffsSpeed, SegLength, FFS, HeavyVehPercent)
   }
   else if (SegmentType == "PL"){
-    Bcoeffs <- SpeedCoeffbPassingLane(VertAlignmentClass, CcoeffsSpeed, DcoeffsSpeed, SegLength, FFS, HeavyVehPercent)
+    Bcoeffs <- TL_SpeedCoeffbPassingLane(VertAlignmentClass, CcoeffsSpeed, DcoeffsSpeed, SegLength, FFS, HeavyVehPercent)
   }
   return (Bcoeffs)
 }
 
-SpeedCoeffbNonPassingLane <- function(VertAlignmentClass, Ccoeffs, Dcoeffs, SegLength, FFS, HVpct){
+TL_SpeedCoeffbNonPassingLaneFcn <- function(VertAlignmentClass, Ccoeffs, Dcoeffs, SegLength, FFS, HVpct){
   Bcoeffs <- vector()
     switch (VertAlignmentClass,
       "1"={Bcoeffs <- c(0.0558,0.0542,0.3278,0.1029,0.0000,0.0000)
       },
       "2"={
         #this can be simplified to just pass in the vector variable, and then use indexing as shown here in the equation in the b3Fcn function
-        b3coeff <- b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
-        b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
+        b3coeff <- TL_b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
+        b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
         Bcoeffs <- c(5.7280,-0.0809,0.7404,b3coeff,b4coeff,3.1155)
       },
       "3"={
-        b3coeff <- b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
-        b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])                 
+        b3coeff <- TL_b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
+        b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
         Bcoeffs <- c(9.3079,-0.1706,1.1292,b3coeff,b4coeff,3.1155)
       },
       "4"={
-        b3coeff <- b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
-        b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])                 
+        b3coeff <- TL_b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
+        b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
         Bcoeffs <- c(9.0115,-0.1194,1.8252,b3coeff,b4coeff,3.2685)
       },
       "5"={
-        b3coeff <- b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
-        b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])                 
+        b3coeff <- TL_b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
+        b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
         Bcoeffs <- c(23.9144,-0.6925,1.9473,b3coeff,b4coeff,3.5115)
       }
     )
 }
 
-SpeedCoeffbPassingLane <- function(VertAlignmentClass, Ccoeffs, Dcoeffs, SegLength, FFS, HVpct){
+TL_SpeedCoeffbPassingLane <- function(VertAlignmentClass, Ccoeffs, Dcoeffs, SegLength, FFS, HVpct){
   Bcoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={
-            b3coeff <- b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
-            b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
+            b3coeff <- TL_b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
+            b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
             Bcoeffs <- c(-1.1379,0.0941,0.0000,b3coeff,b4coeff,0.0000)
           },
           "2"={
-            b3coeff <- b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
-            b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct, Dcoeffs[3], FFS, Dcoeffs[4])
+            b3coeff <- TL_b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
+            b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct, Dcoeffs[3], FFS, Dcoeffs[4])
             Bcoeffs <- c(-2.0688,0.1053,0.0000,b3coeff,b4coeff,0.0000)
           },
           "3"={
-            b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])                 
+            b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
             Bcoeffs <- c(-0.5074,0.0935,0.0000,0.0000,b4coeff,0.0000)
           },
           "4"={
-            b3coeff <- b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
-            b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])                 
+            b3coeff <- TL_b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
+            b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
             Bcoeffs <- c(8.0354,-0.0860,0.0000,b3coeff,b4coeff,4.1900)
           },
           "5"={
-            b3coeff <- b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
-            b4coeff <- b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])                 
+            b3coeff <- TL_b3Fcn(Ccoeffs[1], Ccoeffs[2], SegLength, Ccoeffs[3], FFS, Ccoeffs[4])
+            b4coeff <- TL_b4Fcn(Dcoeffs[1], Dcoeffs[2], HVpct,Dcoeffs[3], FFS, Dcoeffs[4])
             Bcoeffs <- c(7.2991,-0.3535,0.0000,b3coeff,b4coeff,4.8700)
           }
   )
 }
 
-SpeedfCoeffFcn <- function(SegmentType, VertAlignmentClass){
+TL_SpeedfCoeffFcn <- function(SegmentType, VertAlignmentClass){
   Fcoeffs <- vector()
   if (SegmentType == "NPZ" | SegmentType == "PZ"){
-    Fcoeffs <- SpeedfCoeffNonPassingLane(VertAlignmentClass)
+    Fcoeffs <- TL_SpeedfCoeffNonPassingLaneFcn(VertAlignmentClass)
   }
   else if (SegmentType == "PL"){
-    Fcoeffs <- SpeedfCoeffPassingLane(VertAlignmentClass)
+    Fcoeffs <- TL_SpeedfCoeffPassingLaneFcn(VertAlignmentClass)
   }
   return (Fcoeffs)
 }
 
-SpeedfCoeffNonPassingLane <- function(VertAlignmentClass){
+TL_SpeedfCoeffNonPassingLaneFcn <- function(VertAlignmentClass){
   Fcoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={Fcoeffs <- c(0.67576,0.00000,0.00000,0.12060,-0.35919,0.00000,0.00000,0.00000,0.00000)
@@ -549,7 +553,7 @@ SpeedfCoeffNonPassingLane <- function(VertAlignmentClass){
   return (Fcoeffs)
 }
 
-SpeedfCoeffPassingLane <- function(VertAlignmentClass){
+TL_SpeedfCoeffPassingLaneFcn <- function(VertAlignmentClass){
   Fcoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={Fcoeffs <- c(0.91793,-0.00557,0.36862,0.00000,0.00000,0.00611,0.00000,-0.00419,0.00000)
@@ -567,18 +571,18 @@ SpeedfCoeffPassingLane <- function(VertAlignmentClass){
 }
 
 
-PFbCoeffFcn <- function(SegmentType, VertAlignmentClass){
+TL_PFbCoeffFcn <- function(SegmentType, VertAlignmentClass){
   PFbCoeffs <- vector()
   if (SegmentType == "NPZ" | SegmentType == "PZ"){
-    PFbCoeffs <- PFCoeffbNonPassingLane(VertAlignmentClass)
+    PFbCoeffs <- TL_PFCoeffbNonPassingLaneFcn(VertAlignmentClass)
   }
   else if (SegmentType == "PL"){
-    PFbCoeffs <- PFCoeffbPassingLane(VertAlignmentClass)
+    PFbCoeffs <- TL_PFCoeffbPassingLaneFcn(VertAlignmentClass)
   }
   return (PFbCoeffs)
 }
 
-PFCoeffbNonPassingLane <- function(VertAlignmentClass){
+TL_PFCoeffbNonPassingLaneFcn <- function(VertAlignmentClass){
   PFbCoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={PFbCoeffs <- c(37.68080,3.05089,-7.90866,-0.94321,13.64266,-0.00050,-0.05500,7.1376)
@@ -595,7 +599,7 @@ PFCoeffbNonPassingLane <- function(VertAlignmentClass){
   return (PFbCoeffs)
 }
 
-PFCoeffbPassingLane <- function(VertAlignmentClass){
+TL_PFCoeffbPassingLaneFcn <- function(VertAlignmentClass){
   PFbCoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={PFbCoeffs <- c(61.73075,6.73922,-23.68853,-0.84126,11.44533,-1.05124,1.50390,0.00491)
@@ -612,18 +616,18 @@ PFCoeffbPassingLane <- function(VertAlignmentClass){
   return (PFbCoeffs)
 }
 
-PFcCoeffFcn <- function(SegmentType,VertAlignmentClass){
+TL_PFcCoeffFcn <- function(SegmentType,VertAlignmentClass){
   PFcCoeffs <- vector()
   if (SegmentType == "NPZ" | SegmentType == "PZ"){
-    PFcCoeffs <- PFCoeffcNonPassingLane(VertAlignmentClass)
+    PFcCoeffs <- TL_PFCoeffcNonPassingLaneFcn(VertAlignmentClass)
   }
   else if (SegmentType == "PL"){
-    PFcCoeffs <- PFCoeffcPassingLane(VertAlignmentClass)
+    PFcCoeffs <- TL_PFCoeffcPassingLaneFcn(VertAlignmentClass)
   }
   return (PFcCoeffs)
 }
 
-PFCoeffcNonPassingLane <- function(VertAlignmentClass){
+TL_PFCoeffcNonPassingLaneFcn <- function(VertAlignmentClass){
   PFcCoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={PFcCoeffs <- c(18.01780,10.00000,-21.60000,-0.97853,12.05214,-0.00750,-0.06700,11.6041)
@@ -641,7 +645,7 @@ PFCoeffcNonPassingLane <- function(VertAlignmentClass){
 }
 
 
-PFCoeffcPassingLane <- function(VertAlignmentClass){
+TL_PFCoeffcPassingLaneFcn <- function(VertAlignmentClass){
   PFcCoeffs <- vector()
   switch (VertAlignmentClass,
           "1"={PFcCoeffs <- c(80.37105,14.44997,-46.41831,-0.23367,0.84914,-0.56747,0.89427,0.00119)
@@ -659,7 +663,7 @@ PFCoeffcPassingLane <- function(VertAlignmentClass){
 }
 
 
-PFCoeffD <- function(SegmentType){
+TL_PFCoeffDFcn <- function(SegmentType){
   PFdCoeffs <- vector()
   switch (SegmentType,
           "PZ"={PFdCoeffs <- c(-0.29764,-0.71917)
@@ -673,7 +677,7 @@ PFCoeffD <- function(SegmentType){
 }
 
 
-PFCoeffE <- function(SegmentType){
+TL_PFCoeffEFcn <- function(SegmentType){
   PFeCoeffs <- vector()
   switch (SegmentType,
           "PZ"={PFeCoeffs <- c(0.81165,0.37920,-0.49524,-2.11289,2.41146)
@@ -688,7 +692,7 @@ PFCoeffE <- function(SegmentType){
 
 
 #HCM Exhibit 15-10 (Minimum Segment Length)
-MinSegmentLengthFcn <- function(VertAlignClass, SegmentType){
+TL_MinSegmentLengthFcn <- function(VertAlignClass, SegmentType){
   MinSegmentLength <- vector()
   if (SegmentType == "NPZ" | SegmentType == "PZ"){
     switch (VertAlignClass,
@@ -723,7 +727,7 @@ MinSegmentLengthFcn <- function(VertAlignClass, SegmentType){
 
 
 #HCM Exhibit 15-10 (Maximum Segment Length)
-MaxSegmentLengthFcn <- function(VertAlignClass, SegmentType){
+TL_MaxSegmentLengthFcn <- function(VertAlignClass, SegmentType){
   MaxSegmentLength <- vector()
   if (SegmentType == "NPZ"){
     switch (VertAlignClass,
@@ -772,92 +776,92 @@ MaxSegmentLengthFcn <- function(VertAlignClass, SegmentType){
 
 #Functions for Passing Lane Segments (Steps 7 and 8)
 #HCM Equation 15-24
-NumHVFcn <- function(AnalysisFlowRate,HeavyVehPercent){
+TL_NumHVFcn <- function(AnalysisFlowRate,HeavyVehPercent){
   NumHv <- AnalysisFlowRate * (HeavyVehPercent/100)
   return(NumHv)
 }
 
 #HCM Equation 15-25
-PropFlowRateFLFcn <- function(AnalysisFlowRate,NumHv){
+TL_PropFlowRateFLFcn <- function(AnalysisFlowRate,NumHv){
   PropFlowRateFL <- 0.92183 - (0.05022*log(AnalysisFlowRate)) - (0.00030*NumHv)
   return(PropFlowRateFL)
 }
 
 #HCM Equation 15-26
-FlowRateFLFcn <- function(AnalysisFlowRate,PropFlowRateFL){
+TL_FlowRateFLFcn <- function(AnalysisFlowRate,PropFlowRateFL){
   FlowRateFL <- AnalysisFlowRate*PropFlowRateFL
   return(FlowRateFL)
 }
 
 #HCM Equation 15-27
-FlowRateSLFcn <- function(AnalysisFlowRate,PropFlowRateFL){
+TL_FlowRateSLFcn <- function(AnalysisFlowRate,PropFlowRateFL){
   FlowRateSL <- AnalysisFlowRate*(1-PropFlowRateFL)
   return(FlowRateSL)
 }
 
 #HCM Equation 15-28
-HeavyVehPercentFLFcn <- function(HeavyVehPercent){
+TL_HeavyVehPercentFLFcn <- function(HeavyVehPercent){
   HVPropMultiplierFL = 0.4
   HeavyVehPercentFL <- HeavyVehPercent * HVPropMultiplierFL
   return(HeavyVehPercentFL)
 }
 
 #HCM Equation 15-29
-NumHVSLFcn <- function(NumHV, FlowRateFL, HeavyVehPercentFL){
+TL_NumHVSLFcn <- function(NumHV, FlowRateFL, HeavyVehPercentFL){
   NumHVSL <- NumHV - (FlowRateFL*(HeavyVehPercentFL/100))
   return(NumHVSL)
 }
 
 #HCM Equation 15-30
-HeavyVehPercentSLFcn <- function(NumHVSL, FlowRateSL){
+TL_HeavyVehPercentSLFcn <- function(NumHVSL, FlowRateSL){
   HeavyVehPercentSL <- (NumHVSL/FlowRateSL)*100
   return(HeavyVehPercentSL)
 }
 
 #HCM Equation 15-31
-AvgSpeedDiffAdjFcn <- function(AnalysisFlowRate, HeavyVehPercent){
+TL_AvgSpeedDiffAdjFcn <- function(AnalysisFlowRate, HeavyVehPercent){
   AvgSpeedDiffAdj <- 2.750 + (0.00056*AnalysisFlowRate) + 3.8521*(HeavyVehPercent/100)
   return(AvgSpeedDiffAdj)
 }
 
 #HCM Equation 15-32
-AvgSpeedPLMidFLFcn <- function(InitialAvgSpeedFL, AvgSpeedDiffAdj){
+TL_AvgSpeedPLMidFLFcn <- function(InitialAvgSpeedFL, AvgSpeedDiffAdj){
   AvgSpeedPLMidFL <- InitialAvgSpeedFL + (AvgSpeedDiffAdj/2)
   return(AvgSpeedPLMidFL)
 }
 
 #HCM Equation 15-33
-AvgSpeedPLMidSLFcn <- function(InitialAvgSpeedSL, AvgSpeedDiffAdj){
+TL_AvgSpeedPLMidSLFcn <- function(InitialAvgSpeedSL, AvgSpeedDiffAdj){
   AvgSpeedPLMidSL <- InitialAvgSpeedSL - (AvgSpeedDiffAdj/2)
   return(AvgSpeedPLMidSL)
 }
 
 #Passing Lane PF Capacity in FL at Midpoint of segment
-PFPLMidCapacityFcn <- function(PFbCoeffs, SegLength, FFS, HeavyVehPercent){
+TL_PFPLMidCapacityFcn <- function(PFbCoeffs, SegLength, FFS, HeavyVehPercent){
   PercentFollowerCapacity <- PFbCoeffs[1] + (PFbCoeffs[2]*SegLength) + (PFbCoeffs[3]*sqrt(SegLength)) + (PFbCoeffs[4]*FFS) + (PFbCoeffs[5]*sqrt(FFS)) + (PFbCoeffs[6]*HeavyVehPercent) + (PFbCoeffs[7]*sqrt(HeavyVehPercent)) + (PFbCoeffs[8]*(FFS*HeavyVehPercent))
   return(PercentFollowerCapacity)
 }
 
 #Passing Lane PF 25% Capacity in FL at Midpoint of segment
-PFPLMid25CapacityFcn <- function(PFcCoeffs, SegLength, FFS, HeavyVehPercent){
+TL_PFPLMid25CapacityFcn <- function(PFcCoeffs, SegLength, FFS, HeavyVehPercent){
   PercentFollower25Capacity <-  PFcCoeffs[1] + (PFcCoeffs[2]*SegLength) + (PFcCoeffs[3]*sqrt(SegLength)) + (PFcCoeffs[4]*FFS) + (PFcCoeffs[5]*sqrt(FFS)) + (PFcCoeffs[6]*HeavyVehPercent) + (PFcCoeffs[7]*sqrt(HeavyVehPercent)) + (PFcCoeffs[8]*(FFS*HeavyVehPercent))
   return(PercentFollower25Capacity)
 }
 
 #Avg Speed for Passing Lane Segment (Equation not in HCM)
-AvgSpeedPLMidFcn <- function(FlowRateFL, AvgSpeedPLMidFL, FlowRateSL, AvgSpeedPLMidSL){
+TL_AvgSpeedPLMidFcn <- function(FlowRateFL, AvgSpeedPLMidFL, FlowRateSL, AvgSpeedPLMidSL){
   AvgSpeedPLMid <- ((FlowRateFL*AvgSpeedPLMidFL) + (FlowRateSL*AvgSpeedPLMidSL))/(FlowRateFL+FlowRateSL)
   return(AvgSpeedPLMid)
 }
 
 #Percent Followers Passing Lane (Weighted Avg Equation not included in HCM)
-AvgPercentFollowersPLFcn <- function(FlowRateFL, PercentFollowerPLMidFL, FlowRateSL, PercentFollowerPLMidSL){
+TL_AvgPercentFollowersPLFcn <- function(FlowRateFL, PercentFollowerPLMidFL, FlowRateSL, PercentFollowerPLMidSL){
   AvgPercentFollowersPL <- ((FlowRateFL*PercentFollowerPLMidFL) + (FlowRateSL*PercentFollowerPLMidSL))/(FlowRateFL+FlowRateSL)
 return(AvgPercentFollowersPL)
 }
 
 #HCM Equation 15-34
-FollowerDensityPLMidFcn <- function(SegmentType,PercentFollowerPLMidFL,FlowRateFL,AvgSpeedPLMidFL, PercentFollowerPLMidSL, FlowRateSL, AvgSpeedPLMidSL){
+TL_FollowerDensityPLMidFcn <- function(SegmentType,PercentFollowerPLMidFL,FlowRateFL,AvgSpeedPLMidFL, PercentFollowerPLMidSL, FlowRateSL, AvgSpeedPLMidSL){
   if (SegmentType == "PL"){
     FollowerDensityPLMid <- (((PercentFollowerPLMidFL/100)*(FlowRateFL/AvgSpeedPLMidFL)) + ((PercentFollowerPLMidSL/100)*(FlowRateSL/AvgSpeedPLMidSL)))/2
     return(FollowerDensityPLMid)
@@ -870,7 +874,7 @@ FollowerDensityPLMidFcn <- function(SegmentType,PercentFollowerPLMidFL,FlowRateF
 
 #HCM Equation 15-36 - 15-38
 
-AdjustedFollowerDensityFcn <- function(PassLaneLengthMi, UpstreamFlowRate, UpstreamPctFollowers, FlowRate, PctFollowers, AvgSpeed, DownStreamDistMi){
+TL_AdjustedFollowerDensityFcn <- function(PassLaneLengthMi, UpstreamFlowRate, UpstreamPctFollowers, FlowRate, PctFollowers, AvgSpeed, DownStreamDistMi){
     #Equation 15-36
     PctImprovePctFollowers <- (27 - 8.75 * log(max(0.1, DownStreamDistMi)) + 0.1 * max(0, UpstreamPctFollowers - 30) + 3.5 * log(max(0.3, PassLaneLengthMi)) - 0.01 * UpstreamFlowRate)
     #Equation 15-37
@@ -882,7 +886,7 @@ AdjustedFollowerDensityFcn <- function(PassLaneLengthMi, UpstreamFlowRate, Upstr
 }
 
 #Output Display Functions
-TwoLaneOutputDisplayFcnCommon <- function(SegmentType, AnalysisFlowRate, BFFS, a, LaneShoulderAdj, AccessPointAdj, MinSegmentLength, MaxSegmentLength, FFS){
+TL_OutputDisplayFcnCommon <- function(SegmentType, AnalysisFlowRate, BFFS, a, LaneShoulderAdj, AccessPointAdj, MinSegmentLength, MaxSegmentLength, FFS){
   cat("The peak 15-min flow rate =", format(round(AnalysisFlowRate, 1), nsmall=1), "veh/h", "\n")
   cat("BFFS =", format(round(BFFS, 1), nsmall=1), "mi/h", "\n")
   cat("a =", format(round(a, 3), nsmall=3), "\n")
@@ -893,7 +897,7 @@ TwoLaneOutputDisplayFcnCommon <- function(SegmentType, AnalysisFlowRate, BFFS, a
   cat("Free-Flow Speed =", format(round(FFS, 1), nsmall=1), "mi/h", "\n")
 }
 
-TwoLaneOutputDisplayFcnNonPassingLane <- function(AvgSpeedSlopeCoeff, AvgSpeedPowerCoeff, AvgSpeed, PercentFollowerCapacity, PercentFollower25Capacity, PercentFollowerSlopeCoeff, PercentFollowerPowerCoeff, PercentFollowers, FollowerDensity, LOSvalue, LOSnumber){
+TL_OutputDisplayFcnNonPassingLane <- function(AvgSpeedSlopeCoeff, AvgSpeedPowerCoeff, AvgSpeed, PercentFollowerCapacity, PercentFollower25Capacity, PercentFollowerSlopeCoeff, PercentFollowerPowerCoeff, PercentFollowers, FollowerDensity, LOSvalue, LOSnumber){
   cat("m =", format(round(AvgSpeedSlopeCoeff, 3), nsmall=3), "\n")
   cat("p =", format(round(AvgSpeedPowerCoeff, 3), nsmall=3), "\n")
   cat("Average Speed =", format(round(AvgSpeed, 1), nsmall=1), "mi/h", "\n")
@@ -907,7 +911,7 @@ TwoLaneOutputDisplayFcnNonPassingLane <- function(AvgSpeedSlopeCoeff, AvgSpeedPo
   cat("LOS numeric value =", LOSnumber[[2]])
 }
 
-TwoLaneOutputDisplayFcnPassingLane <- function(NumHV, PropFlowRateFL, FlowRateFL, FlowRateSL, HeavyVehPercentFL, NumHVSL, HeavyVehPercentSL, AvgSpeedDiffAdj, InitialAvgSpeedFL, AvgSpeedPLMidFL, InitialAvgSpeedSL, AvgSpeedPLMidSL ,AvgSpeedPLMid, PercentFollowerPLMidFL, PercentFollowerPLMidSL, AvgPercentFollowersPL, FollowerDensityPLMid,FollowerDensity, LOSvalue, LOSnumber, EffectiveLengthPL){
+TL_OutputDisplayFcnPassingLane <- function(NumHV, PropFlowRateFL, FlowRateFL, FlowRateSL, HeavyVehPercentFL, NumHVSL, HeavyVehPercentSL, AvgSpeedDiffAdj, InitialAvgSpeedFL, AvgSpeedPLMidFL, InitialAvgSpeedSL, AvgSpeedPLMidSL ,AvgSpeedPLMid, PercentFollowerPLMidFL, PercentFollowerPLMidSL, AvgPercentFollowersPL, FollowerDensityPLMid,FollowerDensity, LOSvalue, LOSnumber, EffectiveLengthPL){
     cat("NumHV =", format(round(NumHV,0),nsmall=0),"veh", "\n")
     cat("PropFlowRate_FL =", format(round(PropFlowRateFL,3),nsmall=3), "\n")
     cat("FlowRate_FL =", format(round(FlowRateFL,0),nsmall=0), "veh/h", "\n")
@@ -929,30 +933,28 @@ TwoLaneOutputDisplayFcnPassingLane <- function(NumHV, PropFlowRateFL, FlowRateFL
     cat("LOS is", LOSvalue, "\n")
     cat("LOS numeric value =", LOSnumber[[2]], "\n")
     cat("Effective Length =", format(round(EffectiveLengthPL, 1), nsmall=1), "mi", "\n")
-    
 }
 
+TL_PassingLaneEffectiveLengthFcn <- function(UpstreamFlowRate, UpstreamAvgSpeed, UpstreamPctFollowers, UpstreamFollowerDensity, PassLaneLengthMiles){
 
-PassingLaneEffectiveLengthFcn <- function(UpstreamFlowRate, UpstreamAvgSpeed, UpstreamPctFollowers, UpstreamFollowerDensity, PassLaneLengthMiles){
-  
   PassLaneEffectiveLengthMiles <- 0
   DistanceDownstreamMilesMax <- 40
   for (DistanceDownstreamMiles in seq(from=0.1, to=DistanceDownstreamMilesMax, by=0.1)){
     PassLaneEffectiveLengthMiles <- DistanceDownstreamMiles
     PctImprovePctFollowers <- (27 - 8.75 * log(max(0.1, DistanceDownstreamMiles)) + 0.1 * max(0, UpstreamPctFollowers - 30) + 3.5 * log(max(0.3, PassLaneLengthMiles)) - 0.01 * UpstreamFlowRate)
-    
+
     if (PctImprovePctFollowers <= 0)
     {
       DistanceDownstreamMiles <- DistanceDownstreamMiles - 0.1
       PassLaneEffectiveLengthMiles <- DistanceDownstreamMiles
       break
     }
-    
+
     PctImproveAvgSpeed <- (3 - 0.8 * DistanceDownstreamMiles + 0.1 * max(0, UpstreamPctFollowers - 30) + 0.75 * PassLaneLengthMiles - 0.005 * UpstreamFlowRate)
     PctImproveAvgSpeed <- max(PctImproveAvgSpeed, 0)
-    
+
     AdjustedFollowerDensity <- UpstreamPctFollowers / 100 * (1 - PctImprovePctFollowers / 100) * (UpstreamFlowRate / (UpstreamAvgSpeed * (1 + PctImproveAvgSpeed / 100)))
-    
+
     if (AdjustedFollowerDensity >= UpstreamFollowerDensity * 0.95)  #this follower density needs to be for segment prior to passing lane segment
     {
       DistanceDownstreamMiles <- DistanceDownstreamMiles - 0.1
